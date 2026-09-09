@@ -1,0 +1,15 @@
+# Build output
+**/build/
+
+# Compiled binaries and object files
+*.o
+*.obj
+*.exe
+*.out
+
+# VS Code settings
+.vscode/
+
+# OS metadata
+.DS_Store
+Thumbs.db
