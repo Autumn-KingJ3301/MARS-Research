@@ -6,7 +6,10 @@ ChangeTimeline change(Timeline timeline)
     ChangeTimeline result;
     result.count = 0;
 
-    for (int i = 0; i < timeline.count; i++)
+    if (timeline.count < 2 || timeline.count > MAX_COMPONENTS)
+        return result;
+
+    for (int i = 0; i + 1 < timeline.count; i++)
     {
         TimelinePoint current = timeline.points[i];
         TimelinePoint next = timeline.points[i + 1];

@@ -27,4 +27,6 @@ typedef struct ChangeTimeline
     ChangePoint items[MAX_COMPONENTS - 1];
 } ChangeTimeline;
 
+ChangeTimeline change(Timeline timeline);
+
 #endif

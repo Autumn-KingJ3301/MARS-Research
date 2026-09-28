@@ -107,3 +107,67 @@ examples/
 tests/
 build/
 ```
+
+## Invariance and continuity — working operational definitions
+
+These additions are tools for examining proposed definitions, not claims that
+knowledge or identity has been discovered. They retain numerical observations;
+no ring, event encoding, modality, or learned transformation is assumed.
+
+For a caller-supplied finite collection of transformations A:
+
+    residual(x, y; A) = min over T in A of distance(T(x), y)
+    match(x, y; A, epsilon) iff residual <= epsilon
+
+`invariance()` tests this transformation-relative match. Strictly, this is a
+comparison up to an allowed transformation; it does not itself construct an
+invariant representation phi satisfying phi(T(x)) = phi(x).
+The caller supplies callbacks and their parameters, including the identity
+transformation if desired. The current metric is Euclidean distance, inherited
+from the existing vector model. Epsilon is inclusive, complementing `> epsilon`
+in distinction. Feature units and scaling therefore matter.
+
+The result reports validity, minimum residual, the best candidate's index, and
+how many candidates meet the threshold. Several matching candidates indicate
+ambiguity; the first minimum is reported without claiming it is uniquely right.
+An empty candidate list, invalid observation, invalid tolerance, or failed
+callback returns `valid = 0`. A valid comparison with zero matches is a mismatch.
+Callbacks must initialize a valid output, respect its fixed capacity, and avoid
+mutating the input or context. Context lifetimes remain the caller's responsibility.
+
+`continuity()` tests a pair of samples:
+
+    0 < t2 - t1 <= max_gap AND match(s1, s2; A, epsilon)
+
+This is a working definition of sampled temporal compatibility, not mathematical
+continuity. Supply transformations admissible for that particular interval;
+movement, speed, deformation, or other domain constraints are caller decisions.
+Invalid or unordered times return `valid = 0`. An excessive gap is a valid
+comparison with `continuous = 0`; its spatial/feature match remains available.
+
+A sequence has an unbroken chain under this definition only if every adjacent
+link passes. Pairwise matching can drift from the initial observation, and does
+not prove global invariance or persistent object identity. Tolerance-based
+matching need not be transitive; an arbitrary transformation collection need
+not make matching symmetric. Occlusion and multiple-object tracking are not
+implemented. Transformations are supplied, not discovered.
+
+### Run
+
+From this directory:
+
+```sh
+make demo
+make test
+```
+
+`examples/continuity.c` supplies an additive-offset transformation as a small
+example: `[1,3,5]` and `[2,4,6]` differ directly but match under an offset of 1.
+The same match fails temporal continuity when its sampling gap is too large.
+The offset rule belongs only to the example, not the primitive.
+
+Tests cover transformation-relative matching, tolerance boundaries, ambiguous
+matches, invalid inputs, time ordering, time gaps, and timeline capacity.
+The existing `change()` loop now compares only actual adjacent pairs, avoiding
+its previous read past the final point. Its existing aligned-vector assumptions
+otherwise remain unchanged.
